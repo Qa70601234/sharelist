@@ -387,7 +387,7 @@ bash update.sh
 ```bash
 docker build -t yourname/sharelist .
 
-docker run -d -v /etc/sharelist:/sharelist/cache -p 33001:33001 --name="sharelist" yourname/sharelist
+docker run -d -v /etc/sharelist:/sharelist/cache -p 33001:33001 --name="sharelist" reruin/sharelist
 ```
 
 OR
