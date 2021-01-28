@@ -398,6 +398,7 @@ docker-compose up
 
 访问 `http://localhost:33001` 
 WebDAV 目录 `http://localhost:33001/webdav` 
+将验证码识别接口修改为：`https://api.moeclub.org/SampleCode#Base64=image&Type=Default&$noscheme=1&$output=raw`
 
 
 ### Heroku
