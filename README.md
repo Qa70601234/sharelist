@@ -408,3 +408,85 @@ WebDAV 目录 `http://localhost:33001/webdav`
 ### Kubesail
 
 [![Deploy](https://img.shields.io/badge/deploy%20to-kubesail-blue?style=for-the-badge)](https://kubesail.com/template/reruin/sharelist)
+
+
+ShareList 是一个易用的网盘工具，支持快速挂载 GoogleDrive、OneDrive 、Teambition、阿里云盘等多款网盘，内置两款主题色调。
+构建日期：2021/06/21
+
+上游：[e17ff4a]
+
+Linux_x86_64 一键安装 & 卸载脚本
+bash -c "$(curl -sS https://www.cooluc.com/sharelist-install.sh)"
+如果你喜欢手动完成安装，请参考以下内容
+Linux_x86_64 手动安装示例
+下载程序二进制：
+
+mkdir -p /opt/sharelist
+wget -O /opt/sharelist/sharelist_linux_amd64 https://media.cooluc.com/source/sharelist/sharelist_linux_amd64
+chmod 0755 /opt/sharelist/sharelist_linux_amd64
+创建 systemd 启动脚本：
+
+cat >/lib/systemd/system/sharelist.service <<EOF
+[Unit]
+Description=Sharelist service
+Wants=network.target
+Before=network.target network.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sharelist
+ExecStart=/opt/sharelist/sharelist_linux_amd64
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+启动进程 & 开机自启
+
+systemctl start sharelist   # 启动进程
+systemctl enable sharelist  # 开机启动
+systemctl restart sharelist # 重启进程
+默认WEB地址：http://127.0.0.1:33001/，根据设置向导完成初始化。
+
+Linux_x86_64 更新二进制程序
+systemctl stop sharelist
+wget -O /opt/sharelist/sharelist_linux_amd64 https://media.cooluc.com/source/sharelist/sharelist_linux_amd64
+chmod 0755 /opt/sharelist/sharelist_linux_amd64
+systemctl start sharelist
+Linux_x86_64 卸载
+停止进程 & 清除文件
+
+systemctl disable sharelist && systemctl stop sharelist
+rm -rf /opt/sharelist /lib/systemd/system/sharelist.service
+说明
+默认端口：程序默认监听 0.0.0.0:33001 端口，如果要修改端口，请在进程启动后修改 /opt/sharelist/cache/config.json 配置文件 "port":33001 并重启进程 systemctl restart sharelist
+获取 阿里云盘 refresh_token（不适用于 二次验证账户 ¹）
+傻瓜方法：https://media.cooluc.com/get_token/
+
+手动方法：https://media.cooluc.com/decode_token/
+
+二次验证账户 ¹ ：二次验证账户指的是通过 “傻瓜方法” 获取 refresh_token 出现 应用内部错误 或 通过 “手动方法” 获取出现 二次验证 的账户。遇到这种情况的账户无法通过以上两种方式获取 refresh_token，只能使用 安卓手机 安装 阿里云盘 客户端进行获取。具体方法如下：
+
+1、下载 阿里云盘 客户端，安装并登录账户。
+
+2、下载 MT管理器 并安装。
+
+3、使用 MT管理器 进入 Android/data/com.alicloud.databox/files/logs/trace/用户UUID²/yunpan 目录，该目录下保存很多 .log （如：2021-04-20-12.log）日志文件，打开文件日期最新的 log 日志文件。在文本内搜索 refreshToken （通常在第 7 行），该字符后面的一串字符则是需要获取的 refresh_token，把它拷贝出来即可。
+
+用户UUID² ：用户UUID是一串由数字和字母组成的字符串，该字符由阿里云盘自动生成，每个账户都具备唯一的UUID。如果手机上曾经登录过多个账户，无法判断哪个UUID对应的账号。这种情况下建议使用 MT管理器 删除 Android/data/com.alicloud.databox/files/logs 目录，重新登录阿里云盘客户端，此时日志路径只存在当前最后登录的账户UUID。
+
+修改底部超链接
+登录 Sharelist 后台，在 “自定义脚本” 添加以下内容：
+
+<script>
+  var str = document.body.innerHTML;
+  str = str.replace("https://www.cooluc.com", "https://www.你的域名.com");
+  str = str.replace("Cooluc's Blog", "你的网站名字");
+  document.body.innerHTML = str;
+</script>
+效果演示
+参考本站：https://media.cooluc.com/
+项目源码
+GitHub：https://github.com/reruin/sharelist
+使用文档（需要境外代理）：https://reruin.github.io/sharelist/docs/#/zh-cn/
